@@ -52,11 +52,11 @@ In other words, the PageRank conferred by an outbound link is equal to the docum
 
 ```js
 pageRankA = PR('B') / L('B') +
-          PR('C') / L('C') +
-          PR('D') / L('D')`
+            PR('C') / L('C') +
+            PR('D') / L('D')`
 ```
 
-In the general case, the PageRank value for any page u can be expressed as:
+In the general case, the PageRank value for any page `X` can be expressed as:
 
 ```js
 pageRankX = sum(
@@ -76,8 +76,8 @@ The PageRank theory holds that an imaginary random surfer who is randomly clicki
 The damping factor is subtracted from 1 and the result is divided by the number of documents `N` in the collection. This term is then added to the product of the damping factor and the sum of the incoming PageRank scores:
 
 ```js
-const term = ((1 - d) / pages.length) + d;
-pageRankX = term + sum(
+const term = ((1 - d) / pages.length);
+pageRankX = term + d * sum(
   pagesLinkingTo('X').
     map(page =>
       PR(page) / L(page)

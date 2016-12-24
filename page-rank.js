@@ -1,98 +1,57 @@
-function run(pages) {
+function run() {
 
-  // initialize ranks
-  const ranks = pages.map(() =>
-    1 / pages.length
-  );
+  const tempRanksMap = new Map();
 
-  // calculate page rank for every page name
-  const pageRanks = pages.map(page => ({
-    page,
-    rank: PR(page.id, pages)
-  }));
+  // calculate and display page rank for every page
+  for (const [pageId, page] of pagesMap.entries()) {
+    tempRanksMap.set(pageId, PR(pageId));
+  }
 
-  pageRanks.forEach(
-    displayPageRanks
+  // update ranks from this iteration into the global ranks map
+  for (const [pageId, rank] of tempRanksMap.entries()) {
+    const page = pagesMap.get(pageId);
+    page.rank = tempRanksMap.get(pageId);
+    page.displayRank();
+  }
+}
+
+function PR(pageId) {
+
+  // damping factor
+  const d = 0.85;
+  const term = ((1 - d) / pageIds.length);
+
+  // page rank
+  const pageRank = term + d * sum(
+    pagesLinkingTo(pageId)
+    .map(pageLinkId =>
+      pagesMap.get(pageLinkId).rank / L(pageLinkId)
+    ));
+
+  // cleanup result
+  return parseFloat(
+    pageRank.toPrecision(3)
   );
 }
 
-function PR(pageId, pages) {
-
-  // get current page
-  const currentPage = pages.find(page =>
-    page.id === pageId
-  );
-
-  // remove current page from the rest of the pages
-  const otherPages = pages.filter(page =>
-    page.id !== pageId
-  );
-
-  return sum(
-    pagesLinkingTo(pageId, otherPages)
-    .map(page =>
-      PR(page.id, pages) / L(page)
-    )
-  );
-}
-
-function sum(values) {
-  return values
-    .reduce((total, curr) =>
-      total + curr,
-      0
+function pagesLinkingTo(pageId) {
+  return [...pagesMap.keys()]
+    .filter(pageLinkId =>
+      getLinkNames(pageLinkId).includes(pageId)
     );
 }
 
-function pagesLinkingTo(pageId, pages) {
-  return pages
-    .filter(page =>
-      getLinkNames(page).includes(pageId)
-    );
+function L(pageId) {
+  return pagesMap.get(pageId).getLinks().length;
 }
 
-function L(page) {
-  return getLinks(page).length;
+function getLinkNames(pageId) {
+  return pagesMap.get(pageId).getLinks().map(link => link.innerHTML);
 }
 
-function getLinks(page) {
-  return Array.from(
-    page.querySelectorAll('a')
-  );
-}
-
-function getLinkNames(page) {
-  return getLinks(page).map(link => link.innerHTML);
-}
-
-function displayPageRanks({
-  page,
-  rank
-}) {
-  document.querySelector(`#${page.id} .page-rank`).innerHTML = rank;
-}
-
-function getStartingLinks(pageId) {
-  return initialPageLinksMap
-    .get(pageId)
-    .map(initialLink =>
-      `<a href=${initialLink}.html>${initialLink}</a>`
-    )
-    .join('<br />\n');
-}
-
-function getPageTemplate(pageId) {
-  return `
-    <div class="row">
-      ${getStartingLinks(pageId)}
-    </div>
-  `;
-}
-
-function createBrowserWindow(page) {
+function createPageTemplate(html) {
   const bw = document.createElement('div');
   bw.classList.add('browser-window');
-  bw.setAttribute('id', page.id);
   bw.innerHTML = `
     <div class='top-bar'>
       <div class='circles'>
@@ -103,35 +62,48 @@ function createBrowserWindow(page) {
       <span class="page-rank-wrapper">PageRank <code class="page-rank"></code></span>
     </div>
     <div class='content'>
-      ${page.innerHTML}
+      ${html.innerHTML}
     </div>
   `;
   return bw;
 }
 
-function renderPageTemplate(page) {
+// render browser window element for a page
+function renderPageTemplate(page, html) {
+  page.html = createPageTemplate(html);
   document
     .getElementById('pages-container')
-    .appendChild(createBrowserWindow(page));
+    .appendChild(page.html);
 }
 
-async function fetchPage(pageId) {
+async function fetchPageHtml(pageId) {
+  // fetch current page
   const response = await fetch(`${pageId}.html`);
+
+  // fetch content of current page
   const text = await response.text();
+
+  // create element for the current page
   const html = document.createElement('div');
   html.innerHTML = text;
   html.setAttribute('id', pageId);
+
   return html;
 }
 
 async function fetchAndRenderPages() {
-  const pages = await Promise.all(
-    pageIds.map(fetchPage)
+  // fetch all page html
+  const htmls = await Promise.all(
+    pageIds.map(fetchPageHtml)
   );
 
-  pages.forEach(renderPageTemplate);
-
-  return pages;
+  // add each page to the global pagesMap and render it
+  htmls.forEach((html, idx) =>
+    renderPageTemplate(
+      pagesMap.get(pageIds[idx]),
+      html
+    )
+  );
 }
 
 document.addEventListener('DOMContentLoaded', () => {

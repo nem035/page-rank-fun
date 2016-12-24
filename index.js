@@ -49,3 +49,11 @@ function createNavLink(pageId) {
   li.appendChild(a);
   return li;
 }
+
+function sum(values) {
+  return values
+    .reduce((total, curr) =>
+      total + curr,
+      0
+    );
+}
