@@ -1,0 +1,76 @@
+.browser-window {
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 1px 1px 10px 1px #aaa;
+  display: inline-block;
+  height: 125px;
+  margin: 20px;
+  position: relative;
+  text-align: left;
+  width: 200px;
+  transition: all .5s ease-in-out;
+}
+
+.browser-window.zoom-in {
+  transform: scale(2) translateX(calc(5vw - 100px)) translateY(185px);
+  z-index: 1;
+}
+
+.browser-window .top-bar {
+  background: linear-gradient(#e7e7e6, #e2e2e1);
+  border-bottom: thin solid #dfdfde;
+  border-radius: 5px 5px 0 0;
+  border-top: thin solid #eaeae9;
+  height: 30px;
+}
+
+.browser-window .page-rank-wrapper {
+  font-size: .8em;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+
+.browser-window .page-rank {
+  background-color: #3c3879;
+  border-radius: 3px;
+  color: #dddceb;
+  padding: 2px 4px;
+}
+
+.browser-window .circles {
+  margin: 5px 11px;
+}
+
+.browser-window .circle {
+  background-color: white;
+  border-radius: 50%;
+  display: inline-block;
+  height: 8px;
+  width: 8px;
+}
+
+.browser-window .circle-red {
+  background-color: #fc615d;
+}
+
+.browser-window .circle-yellow {
+  background-color: #fdbd41;
+}
+
+.browser-window .circle-green {
+  background-color: #34C84A;
+}
+
+.browser-window .content {
+  background-color: #fafafa;
+  border-radius: 0 0 5px 5px;
+  display: inline-block;
+  margin: 0;
+  min-height: 50%;
+  width: 100%;
+}
+
+.clear {
+  clear: both;
+}
