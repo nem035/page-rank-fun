@@ -20,12 +20,10 @@ class Base {
   }
 }
 
-class PageLink extends Base {
-  constructor(url, html) {
-    super(html);
-
-    this.containingPageUrl = url;
-    this.outgoingPageUrl = this.html.getAttribute('href');
+class PageLink {
+  constructor(containingPageUrl, outgoingPageUrl) {
+    this.containingPageUrl = containingPageUrl;
+    this.outgoingPageUrl = outgoingPageUrl;
   }
 }
 
@@ -44,44 +42,67 @@ class PageRank {
 
     this.d = 0.85;
     this.urlToPageMap = new Map();
-    this.urlToLinksMap = new Map();
+    this.urlToOutLinksMap = new Map();
+    this.urlToBackLinksMap = new Map();
 
+    // build url -> Page map and initialize link maps
     for (const [url, html] of urlToHtmlMap.entries()) {
       const page = new Page(url, 1 / urlToHtmlMap.size, html);
       this.urlToPageMap.set(page.url, page);
+      this.urlToOutLinksMap.set(page.url, []);
+      this.urlToBackLinksMap.set(page.url, []);
     }
 
-    for (const page of this.urlToPageMap.values()) {
-      this.urlToLinksMap.set(page.url, []);
+    // initialize link maps
 
+    // build url -> [outgoing links] map
+    for (const page of this.urlToPageMap.values()) {
       const anchors = Array.from(page.html.querySelectorAll('a'));
+
       for (const anchor of anchors) {
-        const link = new PageLink(page.url, anchor);
-        this.urlToLinksMap.get(page.url).push(link);
+        const outLink = new PageLink(page.url, anchor.getAttribute('href'));
+        this.urlToOutLinksMap.get(page.url).push(outLink);
+      }
+    }
+
+    // build url -> [ingoing links]
+    for (const [url, links] of this.urlToOutLinksMap.entries()) {
+      for (const link of links) {
+        this.urlToBackLinksMap.get(link.outgoingPageUrl).push(link);
       }
     }
   }
 
   calculateRank(url) {
-    const term = (1 - this.d) / this.urlToPageMap.size;
-    const linksForUrl = this.urlToLinksMap.get(url);
-    const linkedPages = linksForUrl.map(link =>
-      this.urlToPageMap.get(link.containingPageUrl)
+
+    const currentRankOverNumberOfBackLinks = (url) => {
+      return this.getBackLinkedPages(url).map(backLinkPage => {
+        return backLinkPage.rank / (this.getBackLinkedPages(backLinkPage.url).length || 1)
+      });
+    };
+
+    const normalizedSum = (values) => {
+      return (1 - this.d) + this.d *
+        values.reduce((total, curr) => total + curr, 0);
+    };
+
+    const pageRank = normalizedSum(
+      currentRankOverNumberOfBackLinks(
+        url
+      )
     );
 
-    const pageRank = term + this.d * sum(
-      linkedPages.map(page =>
-        page.rank / this.urlToLinksMap.get(page.url).length
-      ));
-
-    // cleanup result
     return parseFloat(
-      pageRank.toPrecision(3)
+      pageRank.toPrecision(2)
     );
   }
 
-  getPages() {
-    return Array.from(this.urlToPageMap.values());
+  getBackLinkedPages(url) {
+    return this.urlToBackLinksMap
+      .get(url)
+      .map(backLink =>
+        this.urlToPageMap.get(backLink.containingPageUrl)
+      );
   }
 
   getPage(url) {

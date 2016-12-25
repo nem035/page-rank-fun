@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(urlToHtmlMap => new PageRank(urlToHtmlMap))
     .then(pageRank => window.pageRank = pageRank)
     .then(addPagesToDOM)
-    .then(calculatePageRanks);
+    .then(displayRanks);
 });
 
 async function fetchPagesAndBuildUrlToHtmlMap(urls) {
@@ -41,20 +41,22 @@ function createPageTemplate(url, html) {
   <div id=${url} class="page-container">
     <div class="page-window-container">
       <div class="page-window">
-        <div class='top-bar'>
-          <div class='circles'>
-            <div class="circle circle-red"></div>
-            <div class="circle circle-yellow"></div>
-            <div class="circle circle-green"></div>
-          </div>
+        <div class="top-bar">
+          <span class="circles">
+            <span class="circle circle-red"></span>
+            <span class="circle circle-yellow"></span>
+            <span class="circle circle-green"></span>
+          </span>
         </div>
-        <div class='content'>
+        <div class="page-url">
+          <input readonly value=${window.location + url}/>
+        </div>
+        <div class="content">
           ${html.innerHTML}
         </div>
       </div>
     </div>
     <div class="page-name">
-      <span>${url}</span>
       <code class="page-rank"></code>
     </div>
   </div>
@@ -67,35 +69,22 @@ function addPagesToDOM() {
 
   const pagesContainer = document.getElementById('pages-container');
 
-  window.pageRank
-    .getPages()
-    .forEach(page =>
-      pagesContainer.appendChild(page.html)
-    );
+  for (const page of window.pageRank.urlToPageMap.values()) {
+    pagesContainer.appendChild(page.html)
+  }
 }
 
-function renderPages() {
-  window.pageRank
-    .getPages()
-    .forEach(page =>
-      pagesContainer.appendChild(page.html)
-    );
+function displayRanks() {
+  for (const page of window.pageRank.urlToPageMap.values()) {
+    document.getElementById(page.url).querySelector('.page-rank').innerHTML = page.rank;
+  }
 }
 
 function calculatePageRanks() {
-  const ranksForCurrentIterationMap = new Map();
 
-  for (const page of window.pageRank.getPages()) {
-    const rank = window.pageRank.calculateRank(page.url);
-    ranksForCurrentIterationMap.set(page.url, rank);
+  for (const page of window.pageRank.urlToPageMap.values()) {
+    page.rank = window.pageRank.calculateRank(page.url);
   }
 
-  for (const [url, rank] of ranksForCurrentIterationMap.entries()) {
-    const page = window.pageRank.getPage(url);
-    page.rank = ranksForCurrentIterationMap.get(url);
-  }
-
-  for (const page of window.pageRank.getPages()) {
-    document.getElementById(page.url).querySelector('.page-rank').innerHTML = page.rank;
-  }
+  displayRanks();
 }

@@ -28,8 +28,8 @@ Suppose instead that page `B` had a link to pages `C` and `A`, page `C` had a li
 
 ```html
 <!-- B.html -->
-<a href="C.html">C</a>
 <a href="A.html">A</a>
+<a href="C.html">C</a>
 
 <!-- C.html -->
 <a href="A.html">A</a>

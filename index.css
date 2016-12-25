@@ -50,6 +50,14 @@ a:active {
   text-align: center;
 }
 
+.page-container .page-rank {
+  font-size: .8em;
+  background-color: #3c3879;
+  border-radius: 3px;
+  color: #dddceb;
+  padding: 2px 4px;
+}
+
 .page-window {
   background-color: #fff;
   border-radius: 5px;
@@ -70,22 +78,15 @@ a:active {
 
 .page-window .top-bar {
   background: linear-gradient(#e7e7e6, #e2e2e1);
-  border-bottom: thin solid #dfdfde;
   border-radius: 5px 5px 0 0;
-  border-top: thin solid #eaeae9;
-  height: 30px;
-}
-
-.page-container .page-rank {
-  font-size: .8em;
-  background-color: #3c3879;
-  border-radius: 3px;
-  color: #dddceb;
-  padding: 2px 4px;
+  height: 20px;
+  text-align: center;
 }
 
 .page-window .circles {
-  margin: 5px 11px;
+  left: 3px;
+  position: absolute;
+  top: 3px;
 }
 
 .page-window .circle {
@@ -106,6 +107,14 @@ a:active {
 
 .page-window .circle-green {
   background-color: #34C84A;
+}
+
+.page-url input {
+  width: 100%;
+  border-top: 0;
+  border-left: 2px solid #e3e3e3;
+  border-right: 2px solid #e3e3e3;
+  border-bottom: 2px solid #e3e3e3;
 }
 
 .page-window .content {
