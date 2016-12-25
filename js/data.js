@@ -82,8 +82,7 @@ class PageRank {
     };
 
     const normalizedSum = (values) => {
-      return (1 - this.d) + this.d *
-        values.reduce((total, curr) => total + curr, 0);
+      return (1 - this.d) + this.d * sum(values);
     };
 
     const pageRank = normalizedSum(
@@ -92,9 +91,7 @@ class PageRank {
       )
     );
 
-    return parseFloat(
-      pageRank.toPrecision(3)
-    );
+    return normalizeFloat(pageRank);
   }
 
   getBackLinkedPages(url) {

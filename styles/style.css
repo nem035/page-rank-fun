@@ -130,7 +130,20 @@ a:active {
   clear: both;
 }
 
-.iteration-count-container {
-  color: #2b745C;
+.stats-container {
+  color: #3c3879;
   text-align: center;
+}
+
+.stats-container>div {
+  margin-top: 10px;
+}
+
+#iteration-count,
+#average-rank {
+  background-color: #3c3879;
+  border-radius: 3px;
+  color: #fff;
+  padding: 2px 4px;
+  font-size: .8em;
 }

@@ -2,7 +2,7 @@
 
 <head>
   <title>PageRankFun</title>
-  <link rel="stylesheet" href="./index.css">
+  <link rel="stylesheet" href="./styles/style.css">
 </head>
 
 <body>
@@ -18,13 +18,14 @@
         </button>
       </div>
     </nav>
-    <h3 class="iteration-count-container">
-      Iterations <code id="iteration-count">0</code>
+    <h3 class="stats-container">
+      <div>Iterations <code id="iteration-count">0</code></div>
+      <div>Average <code id="average-rank">0.25</code></div>
     </h3>
     <div id="pages-container"></div>
   </main>
-  <script src="./data.js"></script>
-  <script src="./run.js"></script>
+  <script src="./js/data.js"></script>
+  <script src="./js/run.js"></script>
 </body>
 
 </html>

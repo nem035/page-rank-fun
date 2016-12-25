@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   fetchPagesAndBuildUrlToHtmlMap(
-      ['A', 'B', 'C', 'D'].map(name => `${name}.html`)
+      ['A', 'B', 'C', 'D'].map(name => `pages/${name}.html`)
     )
     .then(urlToHtmlMap => new PageRank(urlToHtmlMap))
     .then(pageRank => window.pageRank = pageRank)
@@ -88,11 +88,29 @@ function calculatePageRanks() {
 
   displayRanks();
   incrementIterationCount();
+  updateAverageRank();
 }
 
 function incrementIterationCount() {
   const elem = document.getElementById('iteration-count');
   elem.innerHTML = parseInt(elem.innerHTML) + 1;
+}
+
+function updateAverageRank() {
+  const pages = [...window.pageRank.urlToPageMap.values()];
+  const avg = sum(
+    pages.map(page => page.rank)
+  ) / pages.length;
+  const elem = document.getElementById('average-rank');
+  elem.innerHTML = normalizeFloat(avg);
+}
+
+function sum(values) {
+  return values.reduce((total, curr) => total + curr, 0);
+}
+
+function normalizeFloat(f) {
+  return parseFloat(f.toPrecision(3));
 }
 
 function calculateFinalPageRanks() {
