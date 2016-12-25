@@ -24,7 +24,7 @@ body {
 .brand a:visited,
 .brand a:hover,
 .brand a:active {
-  color: #2b745C;
+  color: #eee;
 }
 
 #pages-container {
@@ -128,4 +128,9 @@ a:active {
 
 .clear {
   clear: both;
+}
+
+.iteration-count-container {
+  color: #2b745C;
+  text-align: center;
 }

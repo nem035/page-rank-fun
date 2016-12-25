@@ -11,10 +11,16 @@
       <div class="brand">
         <a href="./index.html">Page Rank Simple Demo</a>
         <button type="button" id="btn-calculate-page-rank" onclick="calculatePageRanks()">
-          Calculate
+          Single Iteration
+        </button>
+        <button type="button" id="btn-calculate-page-rank" onclick="calculateFinalPageRanks()">
+          Final Result
         </button>
       </div>
     </nav>
+    <h3 class="iteration-count-container">
+      Iterations <code id="iteration-count">0</code>
+    </h3>
     <div id="pages-container"></div>
   </main>
   <script src="./data.js"></script>

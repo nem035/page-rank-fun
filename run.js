@@ -87,4 +87,35 @@ function calculatePageRanks() {
   }
 
   displayRanks();
+  incrementIterationCount();
+}
+
+function incrementIterationCount() {
+  const elem = document.getElementById('iteration-count');
+  elem.innerHTML = parseInt(elem.innerHTML) + 1;
+}
+
+function calculateFinalPageRanks() {
+  const getPages = () => [...window.pageRank.urlToPageMap.values()];
+
+  const urlToPreviousRankMap = new Map();
+  (function runIteration() {
+    for (const page of getPages()) {
+      urlToPreviousRankMap.set(page.url, page.rank);
+    }
+
+    calculatePageRanks();
+
+    let unchanged = 0;
+    for (const page of getPages()) {
+      const previousRank = urlToPreviousRankMap.get(page.url);
+      if (previousRank === page.rank) {
+        unchanged += 1;
+      }
+    }
+
+    if (unchanged !== window.pageRank.urlToPageMap.size) {
+      setTimeout(runIteration, 500);
+    }
+  })()
 }
