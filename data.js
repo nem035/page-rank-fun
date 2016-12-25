@@ -77,7 +77,7 @@ class PageRank {
 
     const currentRankOverNumberOfBackLinks = (url) => {
       return this.getBackLinkedPages(url).map(backLinkPage => {
-        return backLinkPage.rank / (this.getBackLinkedPages(backLinkPage.url).length || 1)
+        return backLinkPage.rank / (this.getOutLinks(backLinkPage.url).length || 1)
       });
     };
 
@@ -93,7 +93,7 @@ class PageRank {
     );
 
     return parseFloat(
-      pageRank.toPrecision(2)
+      pageRank.toPrecision(3)
     );
   }
 
@@ -105,7 +105,7 @@ class PageRank {
       );
   }
 
-  getPage(url) {
-    return this.urlToPageMap.get(url);
+  getOutLinks(url) {
+    return this.urlToOutLinksMap.get(url);
   }
 }
