@@ -18,3 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.pageRank.updateLinkMaps();
   });
 });
+
+document.addEventListener('click', (e) => {
+  if (e.target.tagName === 'A') {
+    e.preventDefault();
+  }
+});

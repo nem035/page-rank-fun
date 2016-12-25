@@ -10,7 +10,7 @@ class State {
 
   set isRunning(isRunning) {
     this._isRunning = isRunning;
-    const actions = [...document.querySelectorAll('button'), ...document.querySelectorAll('a')];
+    const actions = [...document.querySelectorAll('button')];
     for (const action of actions) {
       action.disabled = isRunning;
     }
@@ -29,6 +29,7 @@ class State {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+
   fetchPagesAndBuildUrlToHtmlMap(
       ['A', 'B', 'C', 'D'].map(name => `pages/${name}.html`)
     )
@@ -91,7 +92,7 @@ function createPageTemplate(url, html) {
       </div>
     </div>
     <div class="page-name">
-      <code class="page-rank"></code>
+      Page Rank <code class="page-rank"></code>
     </div>
   </div>
   `;

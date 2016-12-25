@@ -1,20 +1,23 @@
 body {
-  background-color: #ffe0b2;
+  background-color: #00695c;
+  color: #fff;
+  font-family: 'Nunito Sans', sans-serif;
   font-size: 16px;
   margin: 0;
 }
 
 .header {
-  background-color: #76aa99;
+  background-color: #00695c;
   position: relative;
 }
 
 .brand {
-  padding: 10px;
+  display: block;
+  margin-bottom: 10px;
 }
 
 .brand a {
-  font-family: 'Courier New';
+  padding: 10px;
   font-size: 1.5em;
   font-weight: bold;
   text-decoration: none;
@@ -27,10 +30,43 @@ body {
   color: #eee;
 }
 
+.controls-container {
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: hsla(170, 100%, 15%, 1);
+  color: #fff;
+  padding: 10px;
+  margin: 0 5px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 0px hsla(170, 100%, 15%, 1), 0px 5px 12px rgba(0, 0, 0, .7);
+  width: 160px;
+  text-align: center;
+  transition: all .1s ease;
+  border: 0;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: hsla(170, 100%, 15%, .8);
+}
+
+button:focus {
+  outline: none;
+}
+
+button:active {
+  box-shadow: 0px 2px 0px hsla(170, 100%, 15%, 1), 0px 2px 6px rgba(0, 0, 0, .7);
+  position: relative;
+  top: 2px;
+}
+
 #pages-container {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 a {
@@ -50,18 +86,10 @@ a:active {
   text-align: center;
 }
 
-.page-container .page-rank {
-  font-size: .8em;
-  background-color: #3c3879;
-  border-radius: 3px;
-  color: #dddceb;
-  padding: 2px 4px;
-}
-
 .page-window {
   background-color: #fff;
   border-radius: 5px;
-  box-shadow: 1px 1px 10px 1px #aaa;
+  box-shadow: 0px 5px 12px rgba(0, 0, 0, .7);
   display: inline-block;
   height: 125px;
   margin: 20px;
@@ -69,11 +97,6 @@ a:active {
   text-align: left;
   width: 200px;
   transition: all .5s ease-in-out;
-}
-
-.page-window.zoom-in {
-  transform: scale(2) translateX(calc(5vw - 100px)) translateY(185px);
-  z-index: 1;
 }
 
 .page-window .top-bar {
@@ -86,7 +109,7 @@ a:active {
 .page-window .circles {
   left: 3px;
   position: absolute;
-  top: 3px;
+  top: 0px;
 }
 
 .page-window .circle {
@@ -126,24 +149,46 @@ a:active {
   width: 100%;
 }
 
-.clear {
-  clear: both;
+.page-window .page-content a {
+  margin: 5px;
+}
+
+.controls-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.controls-container button[disabled] {
+  box-shadow: none;
+  background-color: hsla(170, 100%, 15%, .5);
+}
+
+.controls-container button[disabled]:hover {
+  cursor: not-allowed;
 }
 
 .stats-container {
-  color: #3c3879;
-  text-align: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .stats-container>div {
   margin-top: 10px;
 }
 
-#iteration-count,
-#average-rank {
-  background-color: #3c3879;
+code {
+  background-color: #263238;
   border-radius: 3px;
   color: #fff;
-  padding: 2px 4px;
+  padding: 4px 8px;
   font-size: .8em;
+}
+
+@media (max-width: 768px) {
+  .brand {
+    text-align: center;
+  }
 }
