@@ -92,7 +92,7 @@ function createPageTemplate(url, linksHTML) {
           </span>
         </div>
         <div class="page-url">
-          <input readonly value=${window.location.host + '/' + url}/>
+          <input readonly value=${'http://www.' + url + '.html'}/>
         </div>
         <div class="page-content">
           ${linksHTML}
