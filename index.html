@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css?family=Shadows+Into+Light+Two" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Nunito+Sans" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/atom-one-dark.min.css">
   <link href="./styles/style.css" rel="stylesheet">
 </head>
 
@@ -35,9 +36,32 @@
       <p>You can drag links between pages or add new ones.</p>
     </div>
     <div id="pages-container"></div>
+    <pre>
+      <code class="js">
+        const currentRankOverNumberOfBackLinks = (url) => {
+          return this.getBackLinkedPages(url).map(backLinkPage => {
+            return backLinkPage.rank / this.getOutLinks(backLinkPage.url).length
+          });
+        };
+
+        const normalizedSum = (ranksOverNumberOfBackLinks) => {
+          return (1 - this.d) + this.d * sum(ranksOverNumberOfBackLinks);
+        };
+
+        const pageRank = normalizedSum(
+          currentRankOverNumberOfBackLinks(
+            url
+          )
+        );
+      </code>
+    </pre>
   </main>
   <a class="github-fork-ribbon" href="http://github.com/nem035/page-rank-fun" title="Fork me on GitHub" target="blank">Fork me on GitHub</a>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+  </script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"></script>
   <script src="./js/data.js"></script>
   <script src="./js/app.js"></script>
   <script src="./js/dnd.js"></script>

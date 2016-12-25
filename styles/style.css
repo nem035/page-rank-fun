@@ -268,3 +268,8 @@ code {
   transition: border-left-color .2s ease-in-out, background-color .2s ease-in-out, right .2s ease-in-out;
   right: 0px;
 }
+
+pre {
+  display: flex;
+  justify-content: center;
+}

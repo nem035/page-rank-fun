@@ -91,8 +91,8 @@ class PageRank {
       });
     };
 
-    const normalizedSum = (values) => {
-      return (1 - this.d) + this.d * sum(values);
+    const normalizedSum = (ranksOverNumberOfBackLinks) => {
+      return (1 - this.d) + this.d * sum(ranksOverNumberOfBackLinks);
     };
 
     const pageRank = normalizedSum(

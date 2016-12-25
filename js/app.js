@@ -176,9 +176,10 @@ function calculatePageRanks(isIteration) {
   }
 
   let unchanged = 0;
+  const epsilon = 0.001;
   for (const page of window.pageRank.getPages()) {
     const previousRank = urlToPreviousRankMap.get(page.url);
-    if (previousRank === page.rank) {
+    if (Math.abs(previousRank - page.rank) < epsilon) {
       unchanged += 1;
     }
   }
