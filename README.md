@@ -3,6 +3,8 @@
 In general, PageRank works by counting the number and quality of links to a page to obtain a rough estimate website's importance.
 The base assumption in PageRank is that more important websites are likely to receive more links from other websites.
 
+[Demo Page](https://nem035.github.io/page-rank-fun/)
+
 ## Algorithm
 
 We have 4 pages A.html, B.html, C.html, D.html
