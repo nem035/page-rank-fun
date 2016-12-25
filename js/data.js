@@ -105,4 +105,8 @@ class PageRank {
   getOutLinks(url) {
     return this.urlToOutLinksMap.get(url);
   }
+
+  getPages() {
+    return [...this.urlToPageMap.values()];
+  }
 }

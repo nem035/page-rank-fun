@@ -117,7 +117,7 @@ a:active {
   border-bottom: 2px solid #e3e3e3;
 }
 
-.page-window .content {
+.page-window .page-content {
   background-color: #fafafa;
   border-radius: 0 0 5px 5px;
   display: inline-block;

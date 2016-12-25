@@ -1,12 +1,45 @@
+class State {
+  constructor() {
+    this._isRunning = false;
+    this._isFinished = false;
+  }
+
+  get isRunning() {
+    return this._isRunning;
+  }
+
+  set isRunning(isRunning) {
+    this._isRunning = isRunning;
+    for (const button of document.querySelectorAll('button')) {
+      button.disabled = isRunning;
+    }
+  }
+
+  get isFinished() {
+    return this._isFinished;
+  }
+
+  set isFinished(isFinished) {
+    this._isFinished = isFinished;
+    if (this.isRunning) {
+      this.isRunning = false;
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   fetchPagesAndBuildUrlToHtmlMap(
       ['A', 'B', 'C', 'D'].map(name => `pages/${name}.html`)
     )
-    .then(urlToHtmlMap => new PageRank(urlToHtmlMap))
-    .then(pageRank => window.pageRank = pageRank)
+    .then(initStateAndPageRank)
     .then(addPagesToDOM)
     .then(displayRanks);
 });
+
+function initStateAndPageRank(urlToHtmlMap) {
+  window.state = new State();
+  window.pageRank = new PageRank(urlToHtmlMap);
+}
 
 async function fetchPagesAndBuildUrlToHtmlMap(urls) {
 
@@ -51,7 +84,7 @@ function createPageTemplate(url, html) {
         <div class="page-url">
           <input readonly value=${window.location + url}/>
         </div>
-        <div class="content">
+        <div class="page-content">
           ${html.innerHTML}
         </div>
       </div>
@@ -80,12 +113,52 @@ function displayRanks() {
   }
 }
 
-function calculatePageRanks() {
+function calculateFinalPageRanks() {
+  (function runIteration() {
+    calculatePageRanks(true);
+
+    if (!window.state.isFinished) {
+      setTimeout(runIteration, 500);
+    }
+  })()
+}
+
+function calculatePageRanks(isIteration) {
+  if (window.state.isFinished) {
+    return;
+  }
+
+  if (!window.state.isRunning) {
+    window.state.isRunning = true;
+  }
+
+  const urlToPreviousRankMap = new Map();
 
   for (const page of window.pageRank.urlToPageMap.values()) {
+    urlToPreviousRankMap.set(page.url, page.rank);
     page.rank = window.pageRank.calculateRank(page.url);
   }
 
+  let unchanged = 0;
+  for (const page of window.pageRank.getPages()) {
+    const previousRank = urlToPreviousRankMap.get(page.url);
+    if (previousRank === page.rank) {
+      unchanged += 1;
+    }
+  }
+
+  if (!isIteration) {
+    window.state.isRunning = false;
+  }
+
+  if (unchanged === window.pageRank.urlToPageMap.size) {
+    window.state.isFinished = true;
+  } else {
+    updateRanksAndStats();
+  }
+}
+
+function updateRanksAndStats() {
   displayRanks();
   incrementIterationCount();
   updateAverageRank();
@@ -97,7 +170,7 @@ function incrementIterationCount() {
 }
 
 function updateAverageRank() {
-  const pages = [...window.pageRank.urlToPageMap.values()];
+  const pages = window.pageRank.getPages();
   const avg = sum(
     pages.map(page => page.rank)
   ) / pages.length;
@@ -113,27 +186,20 @@ function normalizeFloat(f) {
   return parseFloat(f.toPrecision(3));
 }
 
-function calculateFinalPageRanks() {
-  const getPages = () => [...window.pageRank.urlToPageMap.values()];
+function resetPageRanks() {
+  window.state.isFinished = false;
 
-  const urlToPreviousRankMap = new Map();
-  (function runIteration() {
-    for (const page of getPages()) {
-      urlToPreviousRankMap.set(page.url, page.rank);
-    }
+  const pages = window.pageRank.getPages();
 
-    calculatePageRanks();
+  for (const page of pages) {
+    page.rank = 1 / pages.length;
+  }
 
-    let unchanged = 0;
-    for (const page of getPages()) {
-      const previousRank = urlToPreviousRankMap.get(page.url);
-      if (previousRank === page.rank) {
-        unchanged += 1;
-      }
-    }
+  displayRanks();
+  resetIterationCount();
+  updateAverageRank();
+}
 
-    if (unchanged !== window.pageRank.urlToPageMap.size) {
-      setTimeout(runIteration, 500);
-    }
-  })()
+function resetIterationCount() {
+  document.getElementById('iteration-count').innerHTML = 0;
 }
