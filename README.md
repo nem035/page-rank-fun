@@ -84,3 +84,8 @@ pageRankX = term + d * sum(
     )
 );
 ```
+
+## Sources
+
+- [Wikipedia](https://en.wikipedia.org/wiki/PageRank)
+- [Princeton's Ian Rogers](http://www.cs.princeton.edu/~chazelle/courses/BIB/pagerank.htm)
