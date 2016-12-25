@@ -10,8 +10,9 @@ class State {
 
   set isRunning(isRunning) {
     this._isRunning = isRunning;
-    for (const button of document.querySelectorAll('button')) {
-      button.disabled = isRunning;
+    const actions = [...document.querySelectorAll('button'), ...document.querySelectorAll('a')];
+    for (const action of actions) {
+      action.disabled = isRunning;
     }
   }
 

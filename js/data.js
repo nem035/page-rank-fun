@@ -45,16 +45,26 @@ class PageRank {
     this.urlToOutLinksMap = new Map();
     this.urlToBackLinksMap = new Map();
 
-    // build url -> Page map and initialize link maps
+    this.initPages(urlToHtmlMap);
+    this.resetLinkMaps();
+    this.updateLinkMaps();
+  }
+
+  initPages(urlToHtmlMap) {
     for (const [url, html] of urlToHtmlMap.entries()) {
       const page = new Page(url, 1 / urlToHtmlMap.size, html);
       this.urlToPageMap.set(page.url, page);
+    }
+  }
+
+  resetLinkMaps() {
+    for (const page of this.getPages()) {
       this.urlToOutLinksMap.set(page.url, []);
       this.urlToBackLinksMap.set(page.url, []);
     }
+  }
 
-    // initialize link maps
-
+  updateLinkMaps() {
     // build url -> [outgoing links] map
     for (const page of this.urlToPageMap.values()) {
       const anchors = Array.from(page.html.querySelectorAll('a'));

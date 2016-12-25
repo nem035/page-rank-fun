@@ -9,11 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return el.tagName === 'A';
     },
     moves(el, source, handle, sibling) {
-      return !window.app.isRunning;
+      return !window.state.isRunning;
     }
   });
 
   drake.on('drop', (el, target, source, sibling) => {
-    console.log(el, target, source, sibling);
+    window.pageRank.resetLinkMaps();
+    window.pageRank.updateLinkMaps();
   });
 });
