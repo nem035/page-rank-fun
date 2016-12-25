@@ -28,14 +28,29 @@ class State {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+const initialPageNames = ['A', 'B', 'C', 'D'];
+const initialLinks = new Map([
+  ['A', ['B', 'C']],
+  ['B', ['C']],
+  ['C', ['A']],
+  ['D', ['C']]
+])
 
-  fetchPagesAndBuildUrlToHtmlMap(
-      ['A', 'B', 'C', 'D'].map(name => `pages/${name}.html`)
-    )
-    .then(initStateAndPageRank)
-    .then(addPagesToDOM)
-    .then(displayRanks);
+document.addEventListener('DOMContentLoaded', () => {
+  initStateAndPageRank(buildUrlToHtmlMap(initialPageNames));
+  addPagesToDOM();
+  displayRanks();
+});
+
+document.addEventListener('click', ({
+  target
+}) => {
+  if (target.classList.contains('item-add-link')) {
+    window.pageRank.addPageLink(
+      target.dataset.pageUrl,
+      target.innerHTML
+    );
+  }
 });
 
 function initStateAndPageRank(urlToHtmlMap) {
@@ -43,34 +58,27 @@ function initStateAndPageRank(urlToHtmlMap) {
   window.pageRank = new PageRank(urlToHtmlMap);
 }
 
-async function fetchPagesAndBuildUrlToHtmlMap(urls) {
+function buildUrlToHtmlMap(urls) {
 
   const urlToHtmlMap = new Map();
 
-  const htmls = await Promise.all(
-    urls.map(url =>
-      fetchPageHtml(url)
-      .then(html =>
-        urlToHtmlMap.set(url, createPageTemplate(url, html))
-      )
-    )
-  );
+  urls.map(url => {
+    urlToHtmlMap.set(url, getPageHtml(url))
+  });
 
   return urlToHtmlMap;
 }
 
-async function fetchPageHtml(url) {
-  const response = await fetch(url);
-  const text = await response.text();
-
+function getPageHtml(url) {
   const html = document.createElement('div');
-  html.innerHTML = text;
   html.setAttribute('id', url);
-
+  html.appendChild(
+    createPageTemplate(url, getLinksHTML(url))
+  );
   return html;
 }
 
-function createPageTemplate(url, html) {
+function createPageTemplate(url, linksHTML) {
   const pageDOM = document.createElement('div');
   pageDOM.innerHTML = `
   <div id=${url} class="page-container">
@@ -84,11 +92,19 @@ function createPageTemplate(url, html) {
           </span>
         </div>
         <div class="page-url">
-          <input readonly value=${window.location + url}/>
+          <input readonly value=${window.location.host + '/' + url}/>
         </div>
         <div class="page-content">
-          ${html.innerHTML}
+          ${linksHTML}
         </div>
+        <button class="btn-add-link" type="button">&#43;</button>
+        <ul class="links-dropdown-container">
+          <div class="arrow-right"></div>
+          <li class="item-add-link" data-page-url="${url}">A</li>
+          <li class="item-add-link" data-page-url="${url}">B</li>
+          <li class="item-add-link" data-page-url="${url}">C</li>
+          <li class="item-add-link" data-page-url="${url}">D</li>
+        </ul>
       </div>
     </div>
     <div class="page-name">
@@ -98,6 +114,20 @@ function createPageTemplate(url, html) {
   `;
 
   return pageDOM;
+}
+
+function getLinksHTML(url) {
+  return initialLinks
+    .get(url)
+    .map(url => `<a href=${url}>${url}</a>`)
+    .join('');
+}
+
+function buildAnchorFromUrl(url) {
+  const a = document.createElement('a');
+  a.setAttribute('href', url);
+  a.innerHTML = url;
+  return a;
 }
 
 function addPagesToDOM() {

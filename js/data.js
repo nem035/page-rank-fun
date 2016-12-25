@@ -119,4 +119,17 @@ class PageRank {
   getPages() {
     return [...this.urlToPageMap.values()];
   }
+
+  addPageLink(containingPageUrl, outgoingPageUrl) {
+    if (this.urlToOutLinksMap.get(containingPageUrl).length < 20) {
+      const page = this.urlToPageMap.get(containingPageUrl);
+
+      page.html
+        .querySelector('.page-content')
+        .appendChild(buildAnchorFromUrl(outgoingPageUrl));
+
+      window.pageRank.resetLinkMaps();
+      window.pageRank.updateLinkMaps();
+    }
+  }
 }

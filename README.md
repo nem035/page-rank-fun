@@ -89,3 +89,11 @@ pageRankX = term + d * sum(
 
 - [Wikipedia](https://en.wikipedia.org/wiki/PageRank)
 - [Princeton's Ian Rogers](http://www.cs.princeton.edu/~chazelle/courses/BIB/pagerank.htm)
+
+## Libraries
+
+- [dragula](https://github.com/bevacqua/dragula)
+
+## Licence
+
+MIT
