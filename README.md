@@ -69,8 +69,7 @@ pageRankX = sum(
 
 - Original Paper
 
-> We assume page A has pages T1...Tn which point to it (i.e., are citations). The parameter d is a damping factor which can be set between 0 and 1. We usually set d to 0.85. There are more details about d in the next section. Also C(A) is defined as the number of links going out of page A. The PageRank of a page A is given as follows:
-
+> We assume page A has pages T1...Tn which point to it (i.e., are citations). The parameter d is a damping factor which can be set between 0 and 1. We usually set d to 0.85.
 - Wikiedia
 
 > The PageRank theory holds that an imaginary random surfer who is randomly clicking on links will eventually stop clicking. The probability, at any step, that the person will continue is a damping factor `d`. Various studies have tested different damping factors, but it is generally assumed that the damping factor will be set around 0.85.
@@ -81,6 +80,26 @@ pageRankX = (1 - d) + d * sum(
     map(page =>
       PR(page) / L(page)
     )
+);
+```
+
+Here's how a full algorithm could look
+
+```js
+const currentRankOverNumberOfBackLinks = (url) => {
+  return this.getBackLinkedPages(url).map(backLinkPage => {
+    return backLinkPage.rank / this.getOutLinks(backLinkPage.url).length
+  });
+};
+
+const normalizedSum = (ranksOverNumberOfBackLinks) => {
+  return (1 - this.d) + this.d * sum(ranksOverNumberOfBackLinks);
+};
+
+const pageRank = normalizedSum(
+  currentRankOverNumberOfBackLinks(
+    url
+  )
 );
 ```
 
