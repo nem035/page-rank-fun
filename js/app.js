@@ -119,8 +119,12 @@ function calculateFinalPageRanks() {
   (function runIteration() {
     calculatePageRanks(true);
 
+    const time = document.getElementById('checkbox-show-steps').checked ?
+      500 :
+      0;
+
     if (!window.state.isFinished) {
-      setTimeout(runIteration, 500);
+      setTimeout(runIteration, time);
     }
   })()
 }
