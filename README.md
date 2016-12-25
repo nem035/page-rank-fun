@@ -1,6 +1,6 @@
 # PageRank in JavaScript
 
-In general, PageRank works by counting the number and quality of links to a page to obtain a rough estimate website's importance.
+PageRank essentially works by counting the number of links to a page to obtain a rough estimate of website's importance.
 The base assumption in PageRank is that more important websites are likely to receive more links from other websites.
 
 [Demo Page](https://nem035.github.io/page-rank-fun/)

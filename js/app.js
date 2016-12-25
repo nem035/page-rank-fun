@@ -230,11 +230,16 @@ function resetPageRanks() {
 
   for (const page of pages) {
     page.rank = 1 / pages.length;
+    page.html
+      .querySelector('.page-content')
+      .innerHTML = getLinksHTML(page.url);
   }
 
   displayRanks();
   resetIterationCount();
   updateAverageRank();
+  window.pageRank.resetLinkMaps();
+  window.pageRank.updateLinkMaps();
 }
 
 function resetIterationCount() {

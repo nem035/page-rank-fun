@@ -226,6 +226,7 @@ code {
   list-style: none;
   margin: 0;
   padding: 0;
+  pointer-events: none;
   position: absolute;
   right: 35px;
   transition: height .2s ease-in-out, background-color .2s ease-in-out;
@@ -242,17 +243,18 @@ code {
   cursor: pointer;
 }
 
-.btn-add-link:hover~.links-dropdown-container,
+.btn-add-link:not([disabled]):hover~.links-dropdown-container,
 .links-dropdown-container:hover {
+  pointer-events: all;
   height: 100%;
 }
 
-.btn-add-link:hover~.links-dropdown-container .item-add-link,
+.btn-add-link:not([disabled]):hover~.links-dropdown-container .item-add-link,
 .links-dropdown-container:hover .item-add-link {
   font-size: .7em;
 }
 
-.btn-add-link:hover~.links-dropdown-container .arrow-right,
+.btn-add-link:not([disabled]):hover~.links-dropdown-container .arrow-right,
 .links-dropdown-container:hover .arrow-right {
   border-left-color: #0091ea;
   right: -10px;
