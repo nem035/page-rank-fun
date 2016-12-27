@@ -1,4 +1,4 @@
-class Base {
+class CustomHTMLElem {
   constructor(html) {
     this._html = null;
     this.html = html;
@@ -25,9 +25,39 @@ class PageLink {
     this.containingPageUrl = containingPageUrl;
     this.outgoingPageUrl = outgoingPageUrl;
   }
+
+  equals(pageLink) {
+    return this.containingPageUrl == pageLink.containingPageUrl &&
+      this.outgoingPageUrl === pageLink.outgoingPageUrl;
+  }
 }
 
-class Page extends Base {
+class PageLinksSet extends Set {
+  constructor() {
+    super(...arguments);
+  }
+
+  has(pageLink) {
+    for (const pg of this.values()) {
+      if (pg.equals(pageLink)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  add() {
+    const pageLink = arguments.length === 1 ?
+      arguments[0] :
+      new PageLink(arguments[0], arguments[1]);
+
+    if (!this.has(pageLink)) {
+      super.add(pageLink);
+    }
+  }
+}
+
+class Page extends CustomHTMLElem {
   constructor(url, initialRank, html) {
     super(html);
 
@@ -42,12 +72,12 @@ class PageRank {
 
     this.d = 0.85;
     this.urlToPageMap = new Map();
-    this.urlToOutLinksMap = new Map();
-    this.urlToBackLinksMap = new Map();
+    this.urlToOutLinksSetMap = new Map();
+    this.urlToBackLinksSetMap = new Map();
 
     this.initPages(urlToHtmlMap);
-    this.resetLinkMaps();
-    this.updateLinkMaps();
+    this.resetLinksSetMaps();
+    this.updateLinksSetMaps();
   }
 
   initPages(urlToHtmlMap) {
@@ -57,28 +87,29 @@ class PageRank {
     }
   }
 
-  resetLinkMaps() {
+  resetLinksSetMaps() {
     for (const page of this.getPages()) {
-      this.urlToOutLinksMap.set(page.url, []);
-      this.urlToBackLinksMap.set(page.url, []);
+      this.urlToOutLinksSetMap.set(page.url, new PageLinksSet());
+      this.urlToBackLinksSetMap.set(page.url, new PageLinksSet());
     }
   }
 
-  updateLinkMaps() {
-    // build url -> [outgoing links] map
+  updateLinksSetMaps() {
+
     for (const page of this.urlToPageMap.values()) {
       const anchors = Array.from(page.html.querySelectorAll('a'));
 
       for (const anchor of anchors) {
-        const outLink = new PageLink(page.url, anchor.getAttribute('href'));
-        this.urlToOutLinksMap.get(page.url).push(outLink);
+        this.urlToOutLinksSetMap.get(page.url).add(
+          page.url,
+          anchor.getAttribute('href')
+        );
       }
     }
 
-    // build url -> [ingoing links]
-    for (const [url, links] of this.urlToOutLinksMap.entries()) {
+    for (const [url, links] of this.urlToOutLinksSetMap.entries()) {
       for (const link of links) {
-        this.urlToBackLinksMap.get(link.outgoingPageUrl).push(link);
+        this.urlToBackLinksSetMap.get(link.outgoingPageUrl).add(link);
       }
     }
   }
@@ -87,7 +118,7 @@ class PageRank {
 
     const currentRankOverNumberOfBackLinks = (url) => {
       return this.getBackLinkedPages(url).map(backLinkPage => {
-        return backLinkPage.rank / (this.getOutLinks(backLinkPage.url).length || 1)
+        return backLinkPage.rank / this.countOutLinks(backLinkPage.url)
       });
     };
 
@@ -105,15 +136,14 @@ class PageRank {
   }
 
   getBackLinkedPages(url) {
-    return this.urlToBackLinksMap
-      .get(url)
+    return [...this.urlToBackLinksSetMap.get(url)]
       .map(backLink =>
         this.urlToPageMap.get(backLink.containingPageUrl)
       );
   }
 
-  getOutLinks(url) {
-    return this.urlToOutLinksMap.get(url);
+  countOutLinks(url) {
+    return this.urlToOutLinksSetMap.get(url).size || 1;
   }
 
   getPages() {
@@ -127,15 +157,24 @@ class PageRank {
   }
 
   addPageLink(containingPageUrl, outgoingPageUrl) {
-    if (this.urlToOutLinksMap.get(containingPageUrl).length < 20) {
+    if (this.urlToOutLinksSetMap.get(containingPageUrl).size < 20) {
       const page = this.urlToPageMap.get(containingPageUrl);
 
       page.html
         .querySelector('.page-content')
         .appendChild(buildAnchorFromUrl(outgoingPageUrl));
 
-      window.pageRank.resetLinkMaps();
-      window.pageRank.updateLinkMaps();
+      const newPageLink = new PageLink(containingPageUrl, outgoingPageUrl);
+
+      this.urlToOutLinksSetMap.get(containingPageUrl)
+        .add(
+          newPageLink
+        );
+
+      this.urlToOutLinksSetMap.get(outgoingPageUrl)
+        .add(
+          newPageLink
+        );
     }
   }
 }

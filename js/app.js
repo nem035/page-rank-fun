@@ -147,7 +147,6 @@ function calculate() {
   window.state.isFinished = false;
   window.state.isRunning = true;
 
-  debugger;
   (function runIteration() {
 
     if (!calculatePageRanksIteration()) {
@@ -228,8 +227,8 @@ function reset() {
   }
 
   resetIterationCount();
-  window.pageRank.resetLinkMaps();
-  window.pageRank.updateLinkMaps();
+  window.pageRank.resetLinksSetMaps();
+  window.pageRank.updateLinksSetMaps();
   displayPageData();
 }
 

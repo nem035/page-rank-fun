@@ -65,12 +65,15 @@ pageRankX = sum(
 )
 ```
 
+It is important to note that repeated links are ignored.
+
 ### Damping Factor
 
 - Original Paper
 
-> We assume page A has pages T1...Tn which point to it (i.e., are citations). The parameter d is a damping factor which can be set between 0 and 1. We usually set d to 0.85.
-- Wikiedia
+> The parameter d is a damping factor which can be set between 0 and 1. We usually set d to 0.85.
+
+- Wikipedia
 
 > The PageRank theory holds that an imaginary random surfer who is randomly clicking on links will eventually stop clicking. The probability, at any step, that the person will continue is a damping factor `d`. Various studies have tested different damping factors, but it is generally assumed that the damping factor will be set around 0.85.
 
@@ -83,12 +86,12 @@ pageRankX = (1 - d) + d * sum(
 );
 ```
 
-Here's how a full algorithm could look
+Here's the full algorithm:
 
 ```js
 const currentRankOverNumberOfBackLinks = (url) => {
   return this.getBackLinkedPages(url).map(backLinkPage => {
-    return backLinkPage.rank / this.getOutLinks(backLinkPage.url).length
+    return backLinkPage.rank / this.countOutLinks(backLinkPage.url)
   });
 };
 

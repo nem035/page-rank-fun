@@ -36,7 +36,7 @@
       <code class="js">
         const currentRankOverNumberOfBackLinks = (url) => {
           return this.getBackLinkedPages(url).map(backLinkPage => {
-            return backLinkPage.rank / this.getOutLinks(backLinkPage.url).length
+            return backLinkPage.rank / this.countOutLinks(backLinkPage.url)
           });
         };
 
