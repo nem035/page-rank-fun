@@ -132,16 +132,10 @@ class PageRank {
       const anchors = Array.from(page.html.querySelectorAll('a'));
 
       for (const anchor of anchors) {
-        this.urlToOutLinksSetMap.get(page.url).add(
+        this.createPageLink(
           page.url,
           anchor.getAttribute('href')
         );
-      }
-    }
-
-    for (const [url, links] of this.urlToOutLinksSetMap.entries()) {
-      for (const link of links) {
-        this.urlToBackLinksSetMap.get(link.outgoingPageUrl).add(link);
       }
     }
   }
@@ -189,18 +183,19 @@ class PageRank {
   }
 
   createPageLink(containingPageUrl, outgoingPageUrl) {
+    if (containingPageUrl !== outgoingPageUrl) {
+      const newPageLink = new PageLink(containingPageUrl, outgoingPageUrl);
 
-    const newPageLink = new PageLink(containingPageUrl, outgoingPageUrl);
+      this.urlToOutLinksSetMap.get(containingPageUrl)
+        .add(
+          newPageLink
+        );
 
-    this.urlToOutLinksSetMap.get(containingPageUrl)
-      .add(
-        newPageLink
-      );
-
-    this.urlToBackLinksSetMap.get(outgoingPageUrl)
-      .add(
-        newPageLink
-      );
+      this.urlToBackLinksSetMap.get(outgoingPageUrl)
+        .add(
+          newPageLink
+        );
+    }
   }
 
   deletePageLink(containingPageUrl, outgoingPageUrl) {

@@ -65,7 +65,7 @@ pageRankX = sum(
 )
 ```
 
-It is important to note that repeated links are ignored.
+It is important to note that the original algorithm ignores repeated links as well as self-links.
 
 ### Damping Factor
 
