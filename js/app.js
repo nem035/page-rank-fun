@@ -1,3 +1,223 @@
+class CustomHTMLElem {
+  constructor(html) {
+    this._html = null;
+    this.html = html;
+  }
+
+  get html() {
+    return this._html;
+  }
+
+  set html(html) {
+    if (typeof html === 'string') {
+      this._html = document.createElement('div');
+      this._html.innerHTML = html;
+    } else if (html instanceof HTMLElement) {
+      this._html = html;
+    } else {
+      throw Error(`Invalid html "${html}"`);
+    }
+  }
+}
+
+class PageLink {
+  constructor(containingPageUrl, outgoingPageUrl) {
+    this.containingPageUrl = containingPageUrl;
+    this.outgoingPageUrl = outgoingPageUrl;
+  }
+
+  equals() {
+    if (arguments.length === 1) {
+      return this.containingPageUrl == arguments[0].containingPageUrl &&
+        this.outgoingPageUrl === arguments[0].outgoingPageUrl;
+    }
+
+    return this.containingPageUrl == arguments[0] &&
+      this.outgoingPageUrl === arguments[1];
+  }
+}
+
+class PageLinksSet extends Set {
+  constructor() {
+    super(...arguments);
+  }
+
+  _toPageLink() {
+    return arguments.length === 1 ?
+      arguments[0] :
+      new PageLink(arguments[0], arguments[1]);
+  }
+
+  has(pageLink) {
+    for (const pg of this.values()) {
+      if (pg.equals(pageLink)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  add() {
+    const pageLink = this._toPageLink(...arguments);
+
+    if (!this.has(pageLink)) {
+      super.add(pageLink);
+    }
+  }
+
+  get() {
+    if (arguments.length === 1) {
+      return super.get(arguments[0]);
+    }
+
+    for (const pl of this.values()) {
+      if (pl.equals(
+          arguments[0],
+          arguments[1]
+        )) {
+        return pl;
+      }
+    }
+
+    return null;
+  }
+
+  delete() {
+    return super.delete(
+      this.get(...arguments)
+    )
+  }
+}
+
+class Page extends CustomHTMLElem {
+  constructor(url, initialRank, html) {
+    super(html);
+
+    this.url = url;
+    this.rank = initialRank;
+  }
+}
+
+class PageRank {
+
+  constructor(urlToHtmlMap) {
+
+    this.d = 0.85;
+    this.urlToPageMap = new Map();
+    this.urlToOutLinksSetMap = new Map();
+    this.urlToBackLinksSetMap = new Map();
+
+    this.initPages(urlToHtmlMap);
+    this.resetLinksSetMaps();
+    this.updateLinksSetMaps();
+  }
+
+  initPages(urlToHtmlMap) {
+    for (const [url, html] of urlToHtmlMap.entries()) {
+      const page = new Page(url, 1 / urlToHtmlMap.size, html);
+      this.urlToPageMap.set(page.url, page);
+    }
+  }
+
+  resetLinksSetMaps() {
+    for (const page of this.getPages()) {
+      this.urlToOutLinksSetMap.set(page.url, new PageLinksSet());
+      this.urlToBackLinksSetMap.set(page.url, new PageLinksSet());
+    }
+  }
+
+  updateLinksSetMaps() {
+
+    for (const page of this.urlToPageMap.values()) {
+      const anchors = Array.from(page.html.querySelectorAll('a'));
+
+      for (const anchor of anchors) {
+        this.urlToOutLinksSetMap.get(page.url).add(
+          page.url,
+          anchor.getAttribute('href')
+        );
+      }
+    }
+
+    for (const [url, links] of this.urlToOutLinksSetMap.entries()) {
+      for (const link of links) {
+        this.urlToBackLinksSetMap.get(link.outgoingPageUrl).add(link);
+      }
+    }
+  }
+
+  calculateRank(url) {
+
+    const currentRankOverNumberOfBackLinks = (url) => {
+      return this.getBackLinkedPages(url).map(backLinkPage => {
+        return backLinkPage.rank / this.countOutLinks(backLinkPage.url)
+      });
+    };
+
+    const normalizedSum = (ranksOverNumberOfBackLinks) => {
+      return (1 - this.d) + this.d * sum(ranksOverNumberOfBackLinks);
+    };
+
+    const pageRank = normalizedSum(
+      currentRankOverNumberOfBackLinks(
+        url
+      )
+    );
+
+    return normalizeFloat(pageRank);
+  }
+
+  getBackLinkedPages(url) {
+    return [...this.urlToBackLinksSetMap.get(url)]
+      .map(backLink =>
+        this.urlToPageMap.get(backLink.containingPageUrl)
+      );
+  }
+
+  countOutLinks(url) {
+    return this.urlToOutLinksSetMap.get(url).size || 1;
+  }
+
+  getPages() {
+    return [...this.urlToPageMap.values()];
+  }
+
+  getDescSortedPages(direction = 'asc') {
+    return this.getPages().sort((page1, page2) => {
+      return page2.rank - page1.rank;
+    });
+  }
+
+  createPageLink(containingPageUrl, outgoingPageUrl) {
+
+    const newPageLink = new PageLink(containingPageUrl, outgoingPageUrl);
+
+    this.urlToOutLinksSetMap.get(containingPageUrl)
+      .add(
+        newPageLink
+      );
+
+    this.urlToBackLinksSetMap.get(outgoingPageUrl)
+      .add(
+        newPageLink
+      );
+  }
+
+  deletePageLink(containingPageUrl, outgoingPageUrl) {
+    this.urlToOutLinksSetMap.get(containingPageUrl)
+      .delete(
+        containingPageUrl,
+        outgoingPageUrl
+      );
+
+    this.urlToBackLinksSetMap.get(outgoingPageUrl)
+      .delete(
+        containingPageUrl,
+        outgoingPageUrl
+      );
+  }
+}
+
 class State {
   constructor() {
     this._isRunning = false;
@@ -51,10 +271,21 @@ document.addEventListener('click', ({
   target
 }) => {
   if (target.classList.contains('item-add-link')) {
-    window.pageRank.addPageLink(
-      target.dataset.pageUrl,
-      target.innerHTML
-    );
+    const containingPageUrl = target.dataset.pageUrl;
+    const outgoingPageUrl = target.innerHTML;
+
+    if (window.pageRank.urlToOutLinksSetMap.get(containingPageUrl).size < 20) {
+      const page = window.pageRank.urlToPageMap.get(containingPageUrl);
+
+      page.html
+        .querySelector('.page-content')
+        .appendChild(buildAnchorFromUrl(outgoingPageUrl));
+
+      window.pageRank.createPageLink(
+        target.dataset.pageUrl,
+        target.innerHTML
+      );
+    }
   }
 });
 
@@ -235,3 +466,38 @@ function reset() {
 function resetIterationCount() {
   document.getElementById('iteration-count').innerHTML = 0;
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  const drake = dragula({
+    revertOnSpill: true,
+    isContainer(el) {
+      return el.classList.contains('page-content');
+    },
+    invalidTarget(el, handle) {
+      return el.tagName === 'A';
+    },
+    moves(el, source, handle, sibling) {
+      return !window.state.isRunning;
+    }
+  });
+
+  drake.on('drop', (el, target, source, sibling) => {
+
+    window.pageRank.deletePageLink(
+      target.parentElement.parentElement.parentElement.getAttribute('id'),
+      el.getAttribute('href')
+    );
+
+    window.pageRank.createPageLink(
+      target.parentElement.parentElement.parentElement.getAttribute('id'),
+      el.getAttribute('href')
+    );
+  });
+});
+
+document.addEventListener('click', (e) => {
+  if (e.target.tagName === 'A' && !e.target.classList.contains('github-fork-ribbon')) {
+    e.preventDefault();
+  }
+});
