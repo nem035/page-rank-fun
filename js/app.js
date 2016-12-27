@@ -142,7 +142,7 @@ class PageRank {
 
   calculateRank(url) {
 
-    const currentRankOverNumberOfBackLinks = (url) => {
+    const getRanksOverNumberOfBackLinks = (url) => {
       return this.getBackLinkedPages(url).map(backLinkPage => {
         return backLinkPage.rank / this.countOutLinks(backLinkPage.url)
       });
@@ -153,7 +153,7 @@ class PageRank {
     };
 
     const pageRank = normalizedSum(
-      currentRankOverNumberOfBackLinks(
+      getRanksOverNumberOfBackLinks(
         url
       )
     );

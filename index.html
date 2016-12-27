@@ -34,7 +34,7 @@
     <div id="pages-container"></div>
     <pre>
       <code class="js">
-        const currentRankOverNumberOfBackLinks = (url) => {
+        const getRanksOverNumberOfBackLinks = (url) => {
           return this.getBackLinkedPages(url).map(backLinkPage => {
             return backLinkPage.rank / this.countOutLinks(backLinkPage.url)
           });
@@ -45,7 +45,7 @@
         };
 
         const pageRank = normalizedSum(
-          currentRankOverNumberOfBackLinks(
+          getRanksOverNumberOfBackLinks(
             url
           )
         );

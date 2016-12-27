@@ -16,7 +16,7 @@ const pages = ['A', 'B', 'C', 'D'];
 const initialRanks = pages.map(() => 1 / pages.length); // [0.25, 0.25, 0.25, 0.25]
 ```
 
-The PageRank of a given page gets equally distributed through the its outbound links on each iteration of the algorithm.
+The PageRank of a given page gets equally distributed through its outbound links on each iteration of the algorithm.
 
 If the only links we had were `A`, `B`, and `C` to `D`, each link would transfer 0.25 PageRank to `D` upon the next iteration, for a total of 0.75.
 
@@ -89,7 +89,7 @@ pageRankX = (1 - d) + d * sum(
 Here's the full algorithm:
 
 ```js
-const currentRankOverNumberOfBackLinks = (url) => {
+const getRanksOverNumberOfBackLinks = (url) => {
   return this.getBackLinkedPages(url).map(backLinkPage => {
     return backLinkPage.rank / this.countOutLinks(backLinkPage.url)
   });
@@ -100,7 +100,7 @@ const normalizedSum = (ranksOverNumberOfBackLinks) => {
 };
 
 const pageRank = normalizedSum(
-  currentRankOverNumberOfBackLinks(
+  getRanksOverNumberOfBackLinks(
     url
   )
 );
@@ -116,6 +116,6 @@ const pageRank = normalizedSum(
 - [dragula](https://github.com/bevacqua/dragula)
 - [highlight](https://github.com/isagalaev/highlight.js)
 
-## Licence
+## License
 
 MIT
