@@ -90,13 +90,13 @@ Here's the full algorithm:
 
 ```js
 const getRanksOverNumberOfBackLinks = (url) => {
-  return this.getBackLinkedPages(url).map(backLinkPage => {
-    return backLinkPage.rank / this.countOutLinks(backLinkPage.url)
+  return getBackLinkedPages(url).map(backLinkPage => {
+    return backLinkPage.rank / countOutLinks(backLinkPage.url)
   });
 };
 
 const normalizedSum = (ranksOverNumberOfBackLinks) => {
-  return (1 - this.d) + this.d * sum(ranksOverNumberOfBackLinks);
+  return (1 - d) + d * sum(ranksOverNumberOfBackLinks);
 };
 
 const pageRank = normalizedSum(
