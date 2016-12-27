@@ -85,13 +85,6 @@ a:active {
   top: 2px;
 }
 
-#pages-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
 .controls-container {
   display: flex;
   justify-content: center;
@@ -126,8 +119,34 @@ code {
   font-size: .8em;
 }
 
+#pages-container {
+  width: 100%;
+  position: relative;
+  padding: 0 10vw;
+  margin-bottom: 250px;
+  height: 0;
+}
+
 .page-container {
-  text-align: center;
+  position: absolute;
+  transition: all 1s ease-out;
+  width: calc(20vw);
+}
+
+.page-container[data-index="0"] {
+  transform: translate(0%, 0%)
+}
+
+.page-container[data-index="1"] {
+  transform: translate(100%, 10%);
+}
+
+.page-container[data-index="2"] {
+  transform: translate(200%, 20%);
+}
+
+.page-container[data-index="3"] {
+  transform: translate(300%, 30%);
 }
 
 .page-window {

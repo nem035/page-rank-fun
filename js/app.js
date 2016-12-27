@@ -22,9 +22,6 @@ class State {
 
   set isFinished(isFinished) {
     this._isFinished = isFinished;
-    if (this.isRunning) {
-      this.isRunning = false;
-    }
   }
 }
 
@@ -39,8 +36,16 @@ const initialLinks = new Map([
 document.addEventListener('DOMContentLoaded', () => {
   initStateAndPageRank(buildUrlToHtmlMap(initialPageNames));
   addPagesToDOM();
-  displayRanks();
+  displayPageData();
 });
+
+function addPagesToDOM() {
+  const pagesContainer = document.getElementById('pages-container');
+
+  for (const page of window.pageRank.getDescSortedPages()) {
+    pagesContainer.appendChild(page.html);
+  }
+}
 
 document.addEventListener('click', ({
   target
@@ -63,25 +68,18 @@ function buildUrlToHtmlMap(urls) {
   const urlToHtmlMap = new Map();
 
   urls.map(url => {
-    urlToHtmlMap.set(url, getPageHtml(url))
+    urlToHtmlMap.set(url, createPageDOM(url))
   });
 
   return urlToHtmlMap;
 }
 
-function getPageHtml(url) {
-  const html = document.createElement('div');
-  html.setAttribute('id', url);
-  html.appendChild(
-    createPageTemplate(url, getLinksHTML(url))
-  );
-  return html;
-}
-
-function createPageTemplate(url, linksHTML) {
+function createPageDOM(url) {
   const pageDOM = document.createElement('div');
+  pageDOM.setAttribute('id', url);
+  pageDOM.classList.add('page-container');
+
   pageDOM.innerHTML = `
-  <div id=${url} class="page-container">
     <div class="page-window-container">
       <div class="page-window">
         <div class="top-bar">
@@ -95,7 +93,7 @@ function createPageTemplate(url, linksHTML) {
           <input readonly value=${'http://www.' + url + '.html'}/>
         </div>
         <div class="page-content">
-          ${linksHTML}
+          ${getInitialLinksHTML(url)}
         </div>
         <button class="btn-add-link" type="button">&#43;</button>
         <ul class="links-dropdown-container">
@@ -110,13 +108,12 @@ function createPageTemplate(url, linksHTML) {
     <div class="page-name">
       Page Rank <code class="page-rank"></code>
     </div>
-  </div>
   `;
 
   return pageDOM;
 }
 
-function getLinksHTML(url) {
+function getInitialLinksHTML(url) {
   return initialLinks
     .get(url)
     .map(url => `<a href=${url}>${url}</a>`)
@@ -130,47 +127,44 @@ function buildAnchorFromUrl(url) {
   return a;
 }
 
-function addPagesToDOM() {
-
+function displayPageData() {
   const pagesContainer = document.getElementById('pages-container');
 
-  for (const page of window.pageRank.urlToPageMap.values()) {
-    pagesContainer.appendChild(page.html)
-  }
+  window.pageRank.getDescSortedPages()
+    .forEach((page, i) => {
+      requestAnimationFrame(() => {
+        page.html.dataset.index = i;
+      });
+    });
+
+  updateRanksAndAverage();
 }
 
-function displayRanks() {
-  for (const page of window.pageRank.urlToPageMap.values()) {
-    document.getElementById(page.url).querySelector('.page-rank').innerHTML = page.rank;
-  }
-}
+function calculate() {
+  const pagesContainer = document.getElementById('pages-container');
 
-function calculateFinalPageRanks() {
+  resetIterationCount();
+  window.state.isFinished = false;
+  window.state.isRunning = true;
+
+  debugger;
   (function runIteration() {
-    calculatePageRanks(true);
 
-    const time = document.getElementById('checkbox-show-steps').checked ?
-      500 :
-      0;
-
-    if (!window.state.isFinished) {
-      setTimeout(runIteration, time);
+    if (!calculatePageRanksIteration()) {
+      incrementIterationCount();
+      runIteration();
+    } else {
+      displayPageData();
+      window.state.isFinished = true;
+      window.state.isRunning = false;
     }
   })()
 }
 
-function calculatePageRanks(isIteration) {
-  if (window.state.isFinished) {
-    return;
-  }
-
-  if (!window.state.isRunning) {
-    window.state.isRunning = true;
-  }
-
+function calculatePageRanksIteration() {
   const urlToPreviousRankMap = new Map();
 
-  for (const page of window.pageRank.urlToPageMap.values()) {
+  for (const page of window.pageRank.getPages()) {
     urlToPreviousRankMap.set(page.url, page.rank);
     page.rank = window.pageRank.calculateRank(page.url);
   }
@@ -184,26 +178,18 @@ function calculatePageRanks(isIteration) {
     }
   }
 
-  if (!isIteration) {
-    window.state.isRunning = false;
-  }
-
-  if (unchanged === window.pageRank.urlToPageMap.size) {
-    window.state.isFinished = true;
-  } else {
-    updateRanksAndStats();
-  }
+  return unchanged === window.pageRank.urlToPageMap.size;
 }
 
-function updateRanksAndStats() {
+function updateRanksAndAverage() {
   displayRanks();
-  incrementIterationCount();
   updateAverageRank();
 }
 
-function incrementIterationCount() {
-  const elem = document.getElementById('iteration-count');
-  elem.innerHTML = parseInt(elem.innerHTML) + 1;
+function displayRanks() {
+  for (const page of window.pageRank.getPages()) {
+    document.getElementById(page.url).querySelector('.page-rank').innerHTML = page.rank;
+  }
 }
 
 function updateAverageRank() {
@@ -215,6 +201,11 @@ function updateAverageRank() {
   elem.innerHTML = normalizeFloat(avg);
 }
 
+function incrementIterationCount() {
+  const elem = document.getElementById('iteration-count');
+  elem.innerHTML = parseInt(elem.innerHTML) + 1;
+}
+
 function sum(values) {
   return values.reduce((total, curr) => total + curr, 0);
 }
@@ -223,8 +214,9 @@ function normalizeFloat(f) {
   return parseFloat(f.toPrecision(3));
 }
 
-function resetPageRanks() {
+function reset() {
   window.state.isFinished = false;
+  window.state.isRunning = false;
 
   const pages = window.pageRank.getPages();
 
@@ -232,14 +224,13 @@ function resetPageRanks() {
     page.rank = 1 / pages.length;
     page.html
       .querySelector('.page-content')
-      .innerHTML = getLinksHTML(page.url);
+      .innerHTML = getInitialLinksHTML(page.url);
   }
 
-  displayRanks();
   resetIterationCount();
-  updateAverageRank();
   window.pageRank.resetLinkMaps();
   window.pageRank.updateLinkMaps();
+  displayPageData();
 }
 
 function resetIterationCount() {

@@ -19,16 +19,12 @@
       </div>
     </nav>
     <div class="controls-container">
-      <button type="button" class="btn-control" id="btn-calculate-page-rank" onclick="resetPageRanks()">
+      <button type="button" class="btn-control" onclick="reset()">
         Reset
       </button>
-      <button type="button" class="btn-control" id="btn-calculate-page-rank" onclick="calculatePageRanks()">
-        Single Iteration
+      <button type="button" class="btn-control" onclick="calculate()">
+        Calculate
       </button>
-      <button type="button" class="btn-control" id="btn-calculate-page-rank" onclick="calculateFinalPageRanks()">
-        Final Result
-      </button>
-      <input id="checkbox-show-steps" type="checkbox" checked="true" /> Steps
     </div>
     <div class="stats-container">
       <div># Iterations <code id="iteration-count">0</code></div>

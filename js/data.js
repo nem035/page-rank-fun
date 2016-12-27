@@ -120,6 +120,12 @@ class PageRank {
     return [...this.urlToPageMap.values()];
   }
 
+  getDescSortedPages(direction = 'asc') {
+    return this.getPages().sort((page1, page2) => {
+      return page2.rank - page1.rank;
+    });
+  }
+
   addPageLink(containingPageUrl, outgoingPageUrl) {
     if (this.urlToOutLinksMap.get(containingPageUrl).length < 20) {
       const page = this.urlToPageMap.get(containingPageUrl);
